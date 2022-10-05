@@ -500,11 +500,11 @@ netlink_msg_ctx_snprint (netlink_msg_ctx_t *ctx, char *buf, size_t buf_len)
   cur = buf;
   end = buf + buf_len;
   
-  cur += snprintf(cur, end - cur, "%s %s/%d, Prot: %s",
+  cur += snprintf(cur, end - cur, "%s %s/%d, Prot: %s %u",
 		  netlink_msg_type_to_s(hdr->nlmsg_type),
 		  addr_to_s(rtmsg->rtm_family, RTA_DATA(ctx->dest)),
 		  rtmsg->rtm_dst_len,
-		  netlink_prot_to_s(rtmsg->rtm_protocol));
+		  netlink_prot_to_s(rtmsg->rtm_protocol), rtmsg->rtm_protocol);
 
   if (ctx->metric) {
     cur += snprintf(cur, end - cur, ", Metric: %d", *ctx->metric);
@@ -543,7 +543,7 @@ print_netlink_msg_ctx (netlink_msg_ctx_t *ctx)
  * parse_netlink_msg
  */
 void
-parse_netlink_msg (char *buf, size_t buf_len)
+parse_netlink_msg (char *buf, size_t buf_len, fpm_msg_hdr_t *fpm)
 {
   netlink_msg_ctx_t ctx_space, *ctx;
   struct nlmsghdr *hdr;
@@ -570,6 +570,14 @@ parse_netlink_msg (char *buf, size_t buf_len)
       }
 
       print_netlink_msg_ctx(ctx);
+
+      if (hdr->nlmsg_type == RTM_NEWROUTE &&
+          (ctx->rtmsg->rtm_protocol == 194 ||
+           ctx->rtmsg->rtm_protocol == 186)) {
+        printf("This was a sharpd or bgpd new route\n");
+        write(glob->sock, fpm, fpm_msg_len(fpm));
+      }
+
       break;
 
     default:
@@ -594,7 +602,7 @@ process_fpm_msg (fpm_msg_hdr_t *hdr)
     return;
   }
 
-  parse_netlink_msg (fpm_msg_data (hdr), fpm_msg_data_len (hdr));
+  parse_netlink_msg (fpm_msg_data (hdr), fpm_msg_data_len (hdr), hdr);
 }
 
 /*
