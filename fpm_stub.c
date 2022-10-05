@@ -22,6 +22,8 @@
 #include <errno.h>
 #include <stdlib.h>
 #include <assert.h>
+#include <unistd.h>
+#include <err.h>
 
 #include <linux/netlink.h>
 #include <linux/rtnetlink.h>
