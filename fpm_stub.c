@@ -563,6 +563,7 @@ void parse_netlink_msg(char *buf, size_t buf_len, fpm_msg_hdr_t *fpm)
 			if (hdr->nlmsg_type == RTM_NEWROUTE &&
 			    (ctx->rtmsg->rtm_protocol == 194 ||
 			     ctx->rtmsg->rtm_protocol == 186)) {
+				ctx->rtmsg->rtm_flags |= RTM_F_OFFLOAD;	
 				printf("This was a sharpd or bgpd new route\n");
 				write(glob->sock, fpm, fpm_msg_len(fpm));
 			}
