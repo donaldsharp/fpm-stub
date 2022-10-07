@@ -33,6 +33,7 @@
 typedef struct glob_t_ {
 	int server_sock;
 	int sock;
+	int reflect;
 } glob_t;
 
 glob_t glob_space;
@@ -560,7 +561,7 @@ void parse_netlink_msg(char *buf, size_t buf_len, fpm_msg_hdr_t *fpm)
 
 			print_netlink_msg_ctx(ctx);
 
-			if (hdr->nlmsg_type == RTM_NEWROUTE &&
+			if (glob->reflect && hdr->nlmsg_type == RTM_NEWROUTE &&
 			    (ctx->rtmsg->rtm_protocol == 194 ||
 			     ctx->rtmsg->rtm_protocol == 186)) {
 				ctx->rtmsg->rtm_flags |= RTM_F_OFFLOAD;	
@@ -614,11 +615,19 @@ void fpm_serve()
 	}
 }
 
-int main(void)
+int main(int argc, char **argv)
 {
 	int sock;
+	int c;
 
 	memset(glob, 0, sizeof(*glob));
+
+	c = getopt(argc, argv, "c");
+	if (c == 'c') {
+		printf("Reflecting some routes with OFFLOAD flag set\n");
+		glob->reflect = 1;
+	} else
+		glob->reflect = 0;
 
 	if (!create_listen_sock(FPM_DEFAULT_PORT, &glob->server_sock)) {
 		exit(1);
