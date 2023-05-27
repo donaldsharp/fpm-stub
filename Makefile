@@ -18,7 +18,7 @@
 #   <info@isc.org>
 #   https://www.isc.org/
 
-# Location of quagga code. This is required because we depend on the
+# Location of FRR code. This is required because we depend on the
 # header file that defines the FPM interface: fpm/fpm.h.
 FRR_DIR = ../frr
 
