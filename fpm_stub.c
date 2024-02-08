@@ -332,6 +332,8 @@ parse_rtattrs_ (struct rtattr *rta, size_t len, struct rtattr**rtas,
 
     rtas[rta->rta_type] = rta;
   }
+
+  return 1;
 }
 
 /*
