@@ -24,6 +24,7 @@
 #include <assert.h>
 #include <unistd.h>
 #include <err.h>
+#include <sys/types.h>
 
 #include <linux/netlink.h>
 #include <linux/rtnetlink.h>
@@ -624,6 +625,12 @@ fpm_serve ()
 int main (void)
 {
   int sock;
+  pid_t daemon;
+
+  daemon = fork();
+
+  if (daemon)
+	  exit(0);
 
   memset(glob, 0, sizeof(*glob));
 
