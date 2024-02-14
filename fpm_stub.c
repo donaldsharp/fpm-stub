@@ -623,15 +623,19 @@ fpm_serve ()
 	}
 }
 
-int main (void)
+int main (int argc, char **argv)
 {
 	int sock;
 	pid_t daemon;
+	int d;
 
-	daemon = fork();
+	d = getopt(argc, argv, "d");
+	if (d == 'd') {
+		daemon = fork();
 
-	if (daemon)
-		exit(0);
+		if (daemon)
+			exit(0);
+	}
 
 	memset(glob, 0, sizeof(*glob));
 
